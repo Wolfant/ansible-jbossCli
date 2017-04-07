@@ -80,24 +80,21 @@ EXAMPLES = """
     deployment: hello.war
     state: absent
 """
-import grp
-import platform
 import os
 import shutil
 import time
-
-def execute_command(self, cmd):
-        return self.module.run_command(cmd)
+import grp
+import platform
 
 def main():
     module = AnsibleModule(
         argument_spec = dict(
             src=dict(),
             user=dict(),
-            pasword=dict(),
+            password=dict(),
             command=dict(requiered=True),
-            cli_path=dict(default='/var/lib/jbossas/bin'),
-            server=dict(default='localhost:9999'),
+            cli_path=dict(default='/usr/share/wildfly/bin'),
+            server=dict(default='localhost:9990'),
         ),
     )
 
@@ -121,18 +118,19 @@ def main():
 
     cmd = [cli_path + "/jboss-cli.sh" ]
     cmd.append('-c')
-    cmd.append('--controller=%' % str(server))
+    cmd.append("--controller=" + str(server))
 
 
     if user:
         cmd.append('--user')
-        cmd.append('%d' % str(user))
+        cmd.append('%s' % str(user))
         cmd.append('--password')
-        cmd.append('%d' % str(password))
-    if commnd == "run-batch":
-        cmd.append('"%d --file %d "' % ( str(command), str(src) ) )
-    else
-        cmd.append('%d' % str(command))
+        cmd.append('%s' % str(password))
+
+    if command == "run-batch":
+        cmd.append('"%s --file %s "' % ( str(command), str(src) ) )
+    else:
+        cmd.append('%s' % str(command))
 
     rc = None
     out = ''
@@ -141,9 +139,9 @@ def main():
     result['name'] = 'jboss-cli'
     result['command'] = command
 
-    (rc, out, err) = execute_command(cmd)
+    (rc, out, err) = module.run_command(cmd,encoding='utf-8')
     if rc != 0:
-    module.fail_json(name='jboss-cli', msg=err)
+        module.fail_json(name='jboss-cli', msg=err)
     if rc is None:
         result['changed'] = False
     else:
@@ -154,9 +152,6 @@ def main():
         result['stderr'] = err
 
     module.exit_json(**result)
-
-
-
 
 
 # import module snippets
