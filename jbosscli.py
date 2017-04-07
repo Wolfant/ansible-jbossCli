@@ -63,22 +63,20 @@ author: "Antonio Insuasti (@wolfantEc)"
 """
 
 EXAMPLES = """
-# Deploy a hello world application
+# chage scan-interval value, on user wildfy instalation
 - jboss:
-    src: /tmp/hello-1.0-SNAPSHOT.war
-    deployment: hello.war
-    state: present
+    command: /subsystem=deployment-scanner/scanner=default:write-attribute(name=scan-interval,value=6000)
+    cli_path: /home/user/wildfly-10.1.0.Final/bin
 
-# Update the hello world application
+#  change ExampleDS datasource user-name, on 192.168.20.55:9990 default instalation
 - jboss:
-    src: /tmp/hello-1.1-SNAPSHOT.war
-    deployment: hello.war
-    state: present
+    command: /subsystem=datasources/data-source=ExampleDS:write-attribute(name=user-name,value=other)
+    server: 192.168.20.55:9990
 
-# Undeploy the hello world application
+# Undeploy the hello world application on wildfy server
 - jboss:
-    deployment: hello.war
-    state: absent
+    command: undeploy hello.war
+    server: "{{ ansible_hostname}}:9990"
 """
 import os
 import shutil
