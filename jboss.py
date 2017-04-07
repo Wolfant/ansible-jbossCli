@@ -80,10 +80,12 @@ EXAMPLES = """
     deployment: hello.war
     state: absent
 """
-
+import grp
+import platform
 import os
 import shutil
 import time
+
 def execute_command(self, cmd):
         return self.module.run_command(cmd)
 
@@ -111,10 +113,48 @@ def main():
     if command == 'run-batch' and not src:
         module.fail_json(msg="Argument 'src' required when run-batch is the command")
 
+    if user and not src:
+        module.fail_json(msg="Argument 'user' need 'password' ")
+
     if not os.access(cli_path + "/jboss-cli.sh", os.X_OK):
         module.fail_json(msg="jboss-cli.sh in not found on cli_path ")
 
     cmd = [cli_path + "/jboss-cli.sh" ]
+    cmd.append('-c')
+    cmd.append('--controller=%' % str(server))
+
+
+    if user:
+        cmd.append('--user')
+        cmd.append('%d' % str(user))
+        cmd.append('--password')
+        cmd.append('%d' % str(password))
+    if commnd == "run-batch":
+        cmd.append('"%d --file %d "' % ( str(command), str(src) ) )
+    else
+        cmd.append('%d' % str(command))
+
+    rc = None
+    out = ''
+    err = ''
+    result = {}
+    result['name'] = 'jboss-cli'
+    result['command'] = command
+
+    (rc, out, err) = execute_command(cmd)
+    if rc != 0:
+    module.fail_json(name='jboss-cli', msg=err)
+    if rc is None:
+        result['changed'] = False
+    else:
+        result['changed'] = True
+    if out:
+        result['stdout'] = out
+    if err:
+        result['stderr'] = err
+
+    module.exit_json(**result)
+
 
 
 
