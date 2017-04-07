@@ -39,7 +39,7 @@ options:
       - Batch file, valid if command is run-batch
   cli_path:
     required: false
-    default: /var/lib/jbossas/bin
+    default: /usr/share/wildfly/bin
     description:
       - The location in the filesystem where jboss-cli.sh is
   user:
@@ -52,7 +52,7 @@ options:
       - Jboss management user password
   server:
     required: false
-    default: localhost:9999
+    default: localhost:9990
     description:
       - JBoss server or domain controller, whit management port
 
@@ -108,7 +108,7 @@ def main():
     if command == 'run-batch' and not src:
         module.fail_json(msg="Argument 'src' required when run-batch is the command")
 
-    if user and not src:
+    if user and not password:
         module.fail_json(msg="Argument 'user' need 'password' ")
 
     if not os.access(cli_path + "/jboss-cli.sh", os.X_OK):
@@ -120,10 +120,8 @@ def main():
 
 
     if user:
-        cmd.append('--user')
-        cmd.append('%s' % str(user))
-        cmd.append('--password')
-        cmd.append('%s' % str(password))
+        cmd.append('--user='+str(user))
+        cmd.append('--password='+str(password))
 
     if command == "run-batch":
         cmd.append('"%s --file %s "' % ( str(command), str(src) ) )

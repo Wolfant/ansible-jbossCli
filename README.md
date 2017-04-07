@@ -2,39 +2,46 @@
 ## Jboss cli module for ansible
 
 
-module: jbosscli 
-short_description: exec JBoss Cli commands on JBoss/Wildfly servers
-description:
-  - exec JBoss Cli commands on JBoss/Wildfly servers
-options:
-  command:
-    required: true
-    description:
-      - JBoss Cli command
-  src:
-    required: false
-    description:
-      - Batch file, valid if command is run-batch
-  cli_path:
-    required: false
-    default: /var/lib/jbossas/bin
-    description:
-      - The location in the filesystem where jboss-cli.sh is
-  user:
-    required: false
-    description:
-      - Jboss management user
-  password:
-    required: false
-    description:
-      - Jboss management user password
-  server:
-    required: false
-    default: localhost:9999
-    description:
-      - JBoss server or domain controller, whit management port
+Run jboss-cli commands from ansible
 
-notes:
-  - "jboss-cli.sh need to be runing on client host, and $JAVA_HOME/bin is needeth in Client $PATH"
-  - ""
-author: "Antonio Insuasti (@wolfantEc)"
+## Options
+
+parameter |	required	| default |	comments|
+----------|:---------:|:-------:|:--------|
+command   | yes       |         |  Command to execute on JBoss Cli
+cli_path  | no        | /usr/share/wildfly/bin | path to jboss-cli.sh
+src       | no        |         | if command is run-batch, src is the full path to batch file
+server| no            |localhost:9990| server and port to connect
+user    | no          |         | user to connecto with jboss-cli
+password|no           |         | password of user to connect to with jboss-cli.
+
+
+
+## Examples:
+* change scan-interval value on, path to jboss-cli: /home/user/wildfly-10.1.0.Final/bin/jboss-cli.sh
+
+~~~
+- jboss:
+    command: /subsystem=deployment-scanner/scanner=default:write-attribute(name=scan-interval,value=6000)
+    cli_path: /home/user/wildfly-10.1.0.Final/bin
+~~~
+
+*  Change user of ExampleDS on server with ip addres 192.168.20.55 port 9990
+
+~~~
+- jboss:
+    command: /subsystem=datasources/data-source=ExampleDS:write-attribute(name=user-name,value=other)
+    server: 192.168.20.55:9990
+~~~
+
+* Undeploy  "hello world" application
+
+~~~
+- jboss:
+    command: undeploy hello.war
+    server: "{{ ansible_hostname}}:9990"
+~~~
+
+## Install
+
+copy jbosscli.py on /usr/lib/python2.7/site-packages/ansible/modules/extras/web_infrastructure
