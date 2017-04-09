@@ -14,6 +14,7 @@ src       | no        |         | if command is run-batch, src is the full path 
 server| no            |localhost:9990| server and port to connect
 user    | no          |         | user to connecto with jboss-cli
 password|no           |         | password of user to connect to with jboss-cli.
+verbose|no            | False   | Show the JBoss Cli output, commonly in DMR
 
 
 

@@ -55,6 +55,12 @@ options:
     default: localhost:9990
     description:
       - JBoss server or domain controller, whit management port
+  verbose:
+    required: false
+    default: false
+    description:
+      - Show the JBoss Cli output, commonly in DMR
+
 
 notes:
   - "jboss-cli.sh need to be runing on client host, and $JAVA_HOME/bin is needeth in Client $PATH"
@@ -81,6 +87,7 @@ EXAMPLES = """
 import os
 import shutil
 import time
+import re
 import grp
 import platform
 import json
@@ -94,6 +101,7 @@ def main():
             command=dict(requiered=True),
             cli_path=dict(default='/usr/share/wildfly/bin'),
             server=dict(default='localhost:9990'),
+            verbose=dict(default="False"),
         ),
     )
 
@@ -107,6 +115,8 @@ def main():
     command = module.params['command']
     cli_path = module.params['cli_path']
     server = module.params['server']
+    verbose = module.params['verbose']
+    jsout=None
 
     if command == 'run-batch' and not src:
         module.fail_json(msg="Argument 'src' required when run-batch is the command")
@@ -144,7 +154,13 @@ def main():
         result['changed'] = False
     else:
         result['changed'] = True
-    jsout=None
+
+    if rc != 0 and not out:
+         cause=re.findall("Caused.+",err)
+         if not cause is None:
+             module.fail_json(name='jboss-cli', msg=str(cause))
+         else:
+             module.fail_json(name='jboss-cli', msg=err)
 
     if out:
         if not out.find("outcome") < 0:
@@ -152,11 +168,18 @@ def main():
             jsout=decode
             if decode['outcome'] == 'success':
                 result['changed']= True
-                result['stdout'] = 'success'
+                if verbose == "True":
+                    result['stdout'] = out
+                else:
+                    result['stdout'] = 'success'
             else:
                 result['changed']= False
-                result['stdout'] = decode['outcome']
                 result['stderr']= decode['failure-description']
+                if verbose == "True":
+                    result['stdout'] = out
+                else:
+                    result['stdout'] = decode['outcome']
+
         else:
             result['changed'] = False
             result['stdout'] = out
