@@ -83,6 +83,7 @@ import shutil
 import time
 import grp
 import platform
+import json
 
 def main():
     module = AnsibleModule(
@@ -95,6 +96,8 @@ def main():
             server=dict(default='localhost:9990'),
         ),
     )
+
+
 
     changed = False
 
@@ -136,14 +139,30 @@ def main():
     result['command'] = command
 
     (rc, out, err) = module.run_command(cmd,encoding='utf-8')
-    if rc != 0:
-        module.fail_json(name='jboss-cli', msg=err)
+
     if rc is None:
         result['changed'] = False
     else:
         result['changed'] = True
+    jsout=None
+
     if out:
-        result['stdout'] = out
+        if not out.find("outcome") < 0:
+            decode=json.loads(out.replace("=>", ":"))
+            jsout=decode
+            if decode['outcome'] == 'success':
+                result['changed']= True
+                result['stdout'] = 'success'
+            else:
+                result['changed']= False
+                result['stdout'] = decode['outcome']
+                result['stderr']= decode['failure-description']
+        else:
+            result['changed'] = False
+            result['stdout'] = out
+    if rc != 0:
+        module.fail_json(name='jbosscli', msg=jsout['failure-description'])
+
     if err:
         result['stderr'] = err
 
