@@ -92,6 +92,14 @@ import grp
 import platform
 import json
 
+def dmr2json(data):
+    ndata = data.replace("=>", ":")
+    ndata = ndata.replace("(","{") 
+    ndata = ndata.replace(")","}") 
+    ndata = ndata.replace("undefined",'"undefined"') 
+    
+    return ndata
+  
 def main():
     module = AnsibleModule(
         argument_spec = dict(
@@ -164,7 +172,7 @@ def main():
 
     if out:
         if not out.find("outcome") < 0:
-            decode=json.loads(out.replace("=>", ":"))
+            decode=json.loads(dmr2json(out))
             jsout=decode
             if decode['outcome'] == 'success':
                 result['changed']= True
