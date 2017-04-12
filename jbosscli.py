@@ -30,13 +30,13 @@ description:
   - Deploy applications to JBoss standalone using the filesystem
 options:
   command:
-    required: true
+    required: false
     description:
       - JBoss Cli command
   src:
     required: false
     description:
-      - Batch file, valid if command is run-batch
+      - File with list of commands
   cli_path:
     required: false
     default: /usr/share/wildfly/bin
@@ -94,19 +94,19 @@ import json
 
 def dmr2json(data):
     ndata = data.replace("=>", ":")
-    ndata = ndata.replace("(","{") 
-    ndata = ndata.replace(")","}") 
-    ndata = ndata.replace("undefined",'"undefined"') 
-    
+    ndata = ndata.replace("(","{")
+    ndata = ndata.replace(")","}")
+    ndata = ndata.replace("undefined",'"undefined"')
+
     return ndata
-  
+
 def main():
     module = AnsibleModule(
         argument_spec = dict(
             src=dict(),
             user=dict(),
             password=dict(),
-            command=dict(requiered=True),
+            command=dict(),
             cli_path=dict(default='/usr/share/wildfly/bin'),
             server=dict(default='localhost:9990'),
             verbose=dict(default="False"),
@@ -126,8 +126,8 @@ def main():
     verbose = module.params['verbose']
     jsout=None
 
-    if command == 'run-batch' and not src:
-        module.fail_json(msg="Argument 'src' required when run-batch is the command")
+    if command and src:
+        module.fail_json(msg="Argument 'src' and 'command' are mutually exclusive")
 
     if user and not password:
         module.fail_json(msg="Argument 'user' need 'password' ")
@@ -144,8 +144,8 @@ def main():
         cmd.append('--user='+str(user))
         cmd.append('--password='+str(password))
 
-    if command == "run-batch":
-        cmd.append('"%s --file %s "' % ( str(command), str(src) ) )
+    if src:
+        cmd.append('--file=' + str(src) )
     else:
         cmd.append('%s' % str(command))
 
@@ -170,7 +170,7 @@ def main():
          else:
              module.fail_json(name='jboss-cli', msg=err)
 
-    if out:
+    if out and not src:
         if not out.find("outcome") < 0:
             decode=json.loads(dmr2json(out))
             jsout=decode
@@ -191,6 +191,12 @@ def main():
         else:
             result['changed'] = False
             result['stdout'] = out
+
+    if src:
+         result['changed'] = True
+         result['stdout'] = out
+
+
     if rc != 0:
         module.fail_json(name='jbosscli', msg=jsout['failure-description'])
 
