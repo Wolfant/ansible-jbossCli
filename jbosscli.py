@@ -92,23 +92,15 @@ import grp
 import platform
 import json
 
-def dmr2json(data):
-    ndata = data.replace("=>", ":")
-    ndata = ndata.replace("(","{")
-    ndata = ndata.replace(")","}")
-    ndata = ndata.replace("undefined",'"undefined"')
-
-    return ndata
-
 def main():
     module = AnsibleModule(
         argument_spec = dict(
             src=dict(),
-            user=dict(),
-            password=dict(),
+            user=dict(default='USER'),
+            password=dict(default='PASSWORD'),
             command=dict(),
             cli_path=dict(default='/usr/share/wildfly/bin'),
-            server=dict(default='localhost:9990'),
+            server=dict(default='localhost:9999'),
             verbose=dict(default="False"),
         ),
     )
@@ -153,7 +145,6 @@ def main():
     out = ''
     err = ''
     result = {}
-    result['name'] = 'jboss-cli'
     result['command'] = command
 
     (rc, out, err) = module.run_command(cmd,encoding='utf-8')
@@ -172,21 +163,19 @@ def main():
 
     if out and not src:
         if not out.find("outcome") < 0:
-            decode=json.loads(dmr2json(out))
-            jsout=decode
-            if decode['outcome'] == 'success':
-                result['changed']= True
+            if out.find('success'):
+                result['changed']=True
                 if verbose == "True":
                     result['stdout'] = out
                 else:
                     result['stdout'] = 'success'
             else:
                 result['changed']= False
-                result['stderr']= decode['failure-description']
+                result['stderr']= re.findall("failure-description.+",out)
                 if verbose == "True":
                     result['stdout'] = out
                 else:
-                    result['stdout'] = decode['outcome']
+                    result['stdout'] = re.findall("outcome.+",out)
 
         else:
             result['changed'] = False
@@ -198,7 +187,7 @@ def main():
 
 
     if rc != 0:
-        module.fail_json(name='jbosscli', msg=jsout['failure-description'])
+        module.fail_json(name='jbosscli', msg=re.findall("failure-description.+",out))
 
     if err:
         result['stderr'] = err
