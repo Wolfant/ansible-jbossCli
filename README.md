@@ -45,4 +45,4 @@ verbose|no            | False   | Show the JBoss Cli output, commonly in DMR
 
 ## Install
 
-copy jbosscli.py on /usr/lib/python2.7/site-packages/ansible/modules/extras/web_infrastructure
+copy jbosscli.py on /usr/lib/python2.7/site-packages/ansible/modules/web_infrastructure
