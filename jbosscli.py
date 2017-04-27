@@ -100,7 +100,7 @@ def main():
             password=dict(default='PASSWORD'),
             command=dict(),
             cli_path=dict(default='/usr/share/wildfly/bin'),
-            server=dict(default='localhost:9999'),
+            server=dict(default='localhost:9990'),
             verbose=dict(default="False"),
         ),
     )
