@@ -96,11 +96,11 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             src=dict(),
-            user=dict(),
-            password=dict(),
+            user=dict(default='USER'),
+            password=dict(default='PASSWORD'),
             command=dict(),
             cli_path=dict(default='/usr/share/wildfly/bin'),
-            server=dict(default='localhost:9990'),
+            server=dict(default='localhost:9999'),
             verbose=dict(default="False"),
         ),
     )
