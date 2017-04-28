@@ -1,6 +1,5 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
+##!/usr/bin/env python
+#
 # (c) 2017, Antonio Insusti <antonio@insuasti.ec>
 #
 # This file is part of Ansible
@@ -23,7 +22,7 @@ ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'supported_by': 'community'}
 
 DOCUMENTATION = """
-author: Antonio Insuasti
+author: "Antonio Insuasti (@wolfantEc)"
 module: jbosscli
 version_added: 2.4
 short_description: deploy applications to JBoss
@@ -64,7 +63,6 @@ options:
 notes:
   - "jboss-cli.sh need to be runing on client host, and $JAVA_HOME/bin is needeth in Client $PATH"
   - ""
-author: "Antonio Insuasti (@wolfantEc)"
 """
 
 EXAMPLES = """
