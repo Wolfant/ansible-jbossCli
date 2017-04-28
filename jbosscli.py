@@ -101,6 +101,12 @@ stdout:
     returned: If verbose JBoss Cli command output, else success or failed
     type: string
     sample: '{"outcome" => "success"}'
+Error:
+    description: Jboss Cli command error
+    returned: return error if falied
+    type: string
+    sample: '{"outcome" => "success"}'
+
 '''
 
 import os
@@ -188,7 +194,7 @@ def main():
                     result['stdout'] = 'success'
             else:
                 result['changed'] = False
-                result['stderr'] = re.findall("failure-description.+", out)
+                result['Error'] = re.findall("failure-description.+", out)
                 if verbose == "True":
                     result['stdout'] = out
                 else:
@@ -203,7 +209,7 @@ def main():
     if rc != 0:
         module.fail_json(name='jbosscli', msg=re.findall("failure-description.+", out))
     if err:
-        result['stderr'] = err
+        result['Error'] = err
 
     module.exit_json(**result)
 
