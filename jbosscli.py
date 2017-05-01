@@ -66,18 +66,18 @@ notes:
 """
 
 EXAMPLES = """
-# change scan-interval value, on user wildfly installation
-- JBoss:
+# Change scan-interval value, on user wildfly installation
+- jbosscli:
     command: /subsystem=deployment-scanner/scanner=default:write-attribute(name=scan-interval,value=6000)
     cli_path: /home/user/wildfly-10.1.0.Final/bin
 
-#  change ExampleDS datasource user-name, on 192.168.20.55:9990 default installation
-- JBoss:
+#  Change ExampleDS datasource user-name, on 192.168.20.55:9990 default installation
+- jbosscli:
     command: /subsystem=datasources/data-source=ExampleDS:write-attribute(name=user-name,value=other)
     server: 192.168.20.55:9990
 
 # Undeploy the hello world application on wildfly server
-- JBoss:
+- jbosscli:
     command: undeploy hello.war
     server: "{{ ansible_hostname}}:9990"
 """
@@ -124,7 +124,7 @@ def main():
             server=dict(default='localhost:9990'),
             verbose=dict(default="False"),
         ),
-         mutually_exclusive=[['command', 'src']],
+        mutually_exclusive=[['command', 'src']],
     )
 
     src = module.params['src']
