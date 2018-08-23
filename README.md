@@ -22,7 +22,7 @@ verbose|no            | False   | Show the JBoss Cli output, commonly in DMR
 * change scan-interval value on, path to jboss-cli: /home/user/wildfly-10.1.0.Final/bin/jboss-cli.sh
 
 ~~~
-- jboss:
+- jbosscli:
     command: /subsystem=deployment-scanner/scanner=default:write-attribute(name=scan-interval,value=6000)
     cli_path: /home/user/wildfly-10.1.0.Final/bin
 ~~~
@@ -30,7 +30,7 @@ verbose|no            | False   | Show the JBoss Cli output, commonly in DMR
 *  Change user of ExampleDS on server with ip addres 192.168.20.55 port 9990
 
 ~~~
-- jboss:
+- jbosscli:
     command: /subsystem=datasources/data-source=ExampleDS:write-attribute(name=user-name,value=other)
     server: 192.168.20.55:9990
 ~~~
@@ -38,7 +38,7 @@ verbose|no            | False   | Show the JBoss Cli output, commonly in DMR
 * Undeploy  "hello world" application
 
 ~~~
-- jboss:
+- jbosscli:
     command: undeploy hello.war
     server: "{{ ansible_hostname}}:9990"
 ~~~
